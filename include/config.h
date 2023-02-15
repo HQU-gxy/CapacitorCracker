@@ -1,7 +1,7 @@
 #ifndef CFG_H
 #define CFG_H
 
-#define DEBUG
+//#define DEBUG
 
 // Pin Configuration
 #define RELAY1 5

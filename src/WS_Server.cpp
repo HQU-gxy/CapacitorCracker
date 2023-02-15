@@ -2,6 +2,8 @@
 #include <ArduinoJson.h>
 #include "config.h"
 #include "relay.h"
+#include <EEPROM.h>
+
 void wsEventHandler(uint8_t num, WStype_t type, uint8_t *payload, size_t length)
 {
     switch (type)
@@ -68,7 +70,7 @@ void parseCmd(JsonDocument &doc, u8 num)
         }
 
         relay->fuck();
-        responseJson["status"] = 0;
+        responseJson["fuck_status"] = 0;
         serializeJson(responseJson, response);
         ws_server.sendTXT(num, response);
         return;
@@ -82,9 +84,12 @@ void parseCmd(JsonDocument &doc, u8 num)
 
     if (cmd.equals("set_time_length"))
     {
-        int timeLength = doc["args"]["time_length"];
+        u16 timeLength = doc["args"]["time_length"];
         Relay::setTimeLength(timeLength);
-        responseJson["status"] = 0;
+        EEPROM.write(0, timeLength % 256);
+        EEPROM.write(1, timeLength >> 8);
+        EEPROM.commit();
+        responseJson["time_set_status"] = 0;
         serializeJson(responseJson, response);
         ws_server.sendTXT(num, response);
         return;
@@ -111,7 +116,13 @@ void sendInfo(u8 num, InfoCategory category)
     case InfoCategory::RELAY:
     {
         StaticJsonDocument<JSON_ARRAY_SIZE(16)> relaysStatus;
-        for (int i = 0; i < Relay::getRelaysCount(); i++)
+
+#ifdef DEBUG
+        Serial.print("Relays Count:");
+        Serial.println(Relay::getRelaysCount());
+#endif // DEBUG
+
+        for (int i = 1; i <= Relay::getRelaysCount(); i++)
         {
             relaysStatus.add((int)(Relay::getRelay(i)->isOn()));
         }
