@@ -14,14 +14,14 @@ public:
     static void checkExpire();
     static Relay *getRelay(u8 num);
     static u8 getRelaysCount();
-
+    u8 _num;
 private:
     static u32 _timeLength;
     static Relay *_relaysList[10];
     static u8 _relaysCount;
 
     u8 _pin;
-    u8 _num;
+    
     bool _isOn = false;
     unsigned long _onTime = 0;
 };

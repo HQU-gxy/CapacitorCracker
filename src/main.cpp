@@ -4,6 +4,7 @@
 #include "config.h"
 #include "relay.h"
 #include <ArduinoJson.h>
+#include <EEPROM.h>
 
 Relay relay1(RELAY1, 1);
 Relay relay2(RELAY2, 2);
@@ -23,6 +24,8 @@ void setup()
   WiFi.softAP(WIFI_SSID, WIFI_PASS);
   ws_server.begin();
   ws_server.onEvent(wsEventHandler);
+  EEPROM.begin(2);
+  Relay::setTimeLength(EEPROM.read(0) + (EEPROM.read(1) << 8));
 }
 u32 t0 = 0;
 void loop()
@@ -30,9 +33,10 @@ void loop()
 
   // put your main code here, to run repeatedly:
   ws_server.loop();
-  if (millis() - t0 >= 500)
+  Relay::checkExpire();
+  if (millis() - t0 >= 1000)
   {
-    
+
 #ifdef DEBUG
     Serial.print("Voltage: ");
     Serial.println(analogRead(A0));
@@ -40,10 +44,11 @@ void loop()
     digitalWrite(LED_LOW_BAT, (analogRead(A0) <= 652)); // about 7V
 
     sendInfo(255, VOLTAGE);
-    //sendInfo(255, RELAY);
+    delay(200);
+    sendInfo(255, RELAY);
+    delay(200);
     sendInfo(255, TIMELENGTH);
 
-    Relay::checkExpire();
     t0 = millis();
   }
 }

@@ -29,7 +29,7 @@ void Relay::fuck()
 #ifdef DEBUG
         Serial.print("Relay@pin ");
         Serial.print(this->_pin);
-        Serial.println("switched on");
+        Serial.println(" switched on");
 #endif
 
         digitalWrite(this->_pin, 1);
@@ -64,7 +64,7 @@ void Relay::checkExpire()
 #ifdef DEBUG
                 Serial.print("Relay@pin ");
                 Serial.print(_relaysList[i]->_pin);
-                Serial.println("switched off");
+                Serial.println(" switched off");
 #endif
 
                 digitalWrite(_relaysList[i]->_pin, 0);
